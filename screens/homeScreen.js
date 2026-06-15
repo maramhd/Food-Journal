@@ -60,6 +60,8 @@ const HomeScreen = ({ route, navigation }) => {
 
   const [cameraVisible, setCameraVisible] = useState(false);
 
+  const MAX_DESCRIPTION = 50;
+
   // =========================
   // CAMERA
   // =========================
@@ -148,6 +150,12 @@ const HomeScreen = ({ route, navigation }) => {
 
     if (!description.trim()) {
       Alert.alert("Validation Error", "Please enter description");
+
+      return;
+    }
+
+    if (description.trim().length > MAX_DESCRIPTION) {
+      Alert.alert("Validation Error", `Description must be ${MAX_DESCRIPTION} characters or less`);
 
       return;
     }
@@ -314,33 +322,35 @@ const HomeScreen = ({ route, navigation }) => {
 
       {/* FILTER */}
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterRow}
-      >
-        {categories.map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            style={[
-              styles.filterBtn,
-
-              filterCategory === cat && styles.activeFilter,
-            ]}
-            onPress={() => setFilterCategory(cat)}
-          >
-            <Text
+      <View style={styles.filterContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.filterRow}
+        >
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat}
               style={[
-                styles.filterText,
+                styles.filterBtn,
 
-                filterCategory === cat && styles.activeFilterText,
+                filterCategory === cat && styles.activeFilter,
               ]}
+              onPress={() => setFilterCategory(cat)}
             >
-              {cat}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+              <Text
+                style={[
+                  styles.filterText,
+
+                  filterCategory === cat && styles.activeFilterText,
+                ]}
+              >
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
       {/* LIST */}
 
@@ -374,7 +384,10 @@ const HomeScreen = ({ route, navigation }) => {
             <View style={styles.cardBody}>
               <Text style={styles.cardDesc}>{item.description}</Text>
 
-              <Text style={styles.cardCategory}>{item.category}</Text>
+              <View style={styles.cardFooter}>
+                <Text style={styles.cardCategory}>{item.category}</Text>
+                <Text style={styles.cardDate}>{item.created_at ? new Date(item.created_at).toLocaleDateString() : ""}</Text>
+              </View>
             </View>
           </TouchableOpacity>
         )}
@@ -475,12 +488,14 @@ const HomeScreen = ({ route, navigation }) => {
             {/* DESCRIPTION */}
 
             <TextInput
-              placeholder="Food description..."
+              placeholder="Food description (max 50 chars)..."
               value={description}
               onChangeText={setDescription}
+              maxLength={MAX_DESCRIPTION}
               multiline
               style={styles.input}
             />
+            <Text style={styles.charCount}>{description.length}/{MAX_DESCRIPTION}</Text>
 
             {/* PICKER */}
 
@@ -582,9 +597,13 @@ const styles = StyleSheet.create({
   },
 
   filterRow: {
-    maxHeight: 60,
     paddingHorizontal: 10,
+  },
+
+  filterContainer: {
+    maxHeight: 60,
     marginBottom: 10,
+    zIndex: 10,
   },
 
   filterBtn: {
@@ -634,6 +653,24 @@ const styles = StyleSheet.create({
   cardCategory: {
     color: "#c0392b",
     fontWeight: "bold",
+  },
+
+  cardFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  cardDate: {
+    color: "#999",
+    fontSize: 12,
+  },
+
+  charCount: {
+    textAlign: "right",
+    color: "#999",
+    fontSize: 12,
+    marginBottom: 10,
   },
 
   hiddenRow: {
