@@ -39,6 +39,11 @@
           "photosPermission": "Allow Food Journal to access your photos."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "cbdae804-1493-4dc8-acaf-653ebc701b13"
+      }
+    }
   }
 }
