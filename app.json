@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Food Journal",
+    "slug": "foodJournalTracker",
+    "scheme": ["foodjournaltracker"],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f7f1e5"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.foodjournal.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Food Journal to access your camera to take photos."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Food Journal to access your photos."
+        }
+      ]
+    ]
+  }
+}
