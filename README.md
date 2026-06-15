@@ -77,7 +77,7 @@ This repository was developed to satisfy the requirements of the **Last Mobile A
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/FoodJournal-New.git
+git clone https://github.com/maramhd/Food-Journal.git
 cd FoodJournal-New
 ```
 
