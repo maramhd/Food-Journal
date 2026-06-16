@@ -11,8 +11,6 @@ This report documents the technical audit, bug repair, and enhancement of a Reac
 The project was delivered in ONE versions:
 - **FoodJournal-New** — a repaired and enhanced version that resolves all identified issues and introduces meaningful improvements to the application's reliability, usability, and code quality.
 
-This work was completed as part of the **Last Mobile App Development** course assignment, which requires students to demonstrate competence in React Native code review, Expo SQLite database analysis, bug identification and remediation, feature enhancement, technical documentation, and public repository preparation.
-
 The objectives of this work were:
 
 1. Perform a line-by-line code audit of the original codebase.
@@ -21,12 +19,8 @@ The objectives of this work were:
 4. Repair each issue with verified solutions.
 5. Introduce enhancements that improve the user experience and long-term maintainability of the application.
 6. Verify that all application features function correctly after the changes.
-7. Prepare professional technical documentation suitable for academic submission and public repository publication.
-
 All findings in this report are verified against the actual source code. Nothing is assumed or fabricated.
-
 ---
-
 ### 2. Original Project Analysis
 
 #### 2.1 Architecture Overview
@@ -485,7 +479,7 @@ Using `navigation.replace` instead of `navigation.navigate` for login/logout cre
 
 #### 8.1 Testing Methodology
 
-Testing was performed within the Expo development environment using Expo Go on a physical Android device and the Android emulator. The testing approach followed manual workflow-based validation, where each user-facing feature was exercised end-to-end from the UI through to the SQLite database layer.
+Testing was performed within the Expo development environment using Expo Go on a physical Android device . The testing approach followed manual workflow-based validation, where each user-facing feature was exercised end-to-end from the UI through to the SQLite database layer.
 
 The following testing procedures were applied:
 
@@ -534,11 +528,6 @@ The three-version jump in Expo SDK introduced breaking API changes. The most sig
 **Legacy API Dependencies**
 
 The original codebase used `@react-navigation/stack` (JavaScript stack navigator) and the legacy `Camera` component. Both are deprecated or replaced in newer SDK versions. The migration to `@react-navigation/native-stack` and `CameraView` required understanding the new APIs' behavior, permission models, and configuration requirements.
-
-**Windows Environment Limitations**
-
-The development environment ran on Windows, where the standard Linux `diff` command is unavailable. PowerShell's `Compare-Object` does not support the `-ruN` flags. The file comparison was performed using a custom PowerShell script that computed MD5 hashes of each file to identify modifications, and a manual code review to document specific changes.
-
 **Internal API Reliance**
 
 The old code's use of `result.rows._array` to access query results relied on an undocumented internal property. This worked with expo-sqlite v15 but was not guaranteed to work with v55. Verifying that the new `getAllAsync` method returns a plain array required reading the expo-sqlite v55 documentation and testing the return format.
@@ -580,7 +569,7 @@ The application has been published using **EAS Build** (Expo Application Service
 
 **Configuration Files:**
 
-- `eas.json` — Defines build profiles (development, preview, production)
+- `eas.json` — Defines build profiles (development, preview,)
 - `app.json` — Contains EAS project ID and Android package configuration
 
 **Build Process:**
