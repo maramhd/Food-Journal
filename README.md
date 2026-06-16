@@ -10,7 +10,7 @@ The application was originally built with Expo SDK 52 and later repaired, refact
 
 ## Assignment Objectives
 
-This repository was developed to satisfy the requirements of the **Last Mobile App Development** course assignment. The work demonstrates:
+This repository was developed to satisfy the requirements of the **The last mobile app development - A Food Journal** course assignment. The work demonstrates:
 
 - **Code review** — A systematic audit of the original React Native codebase, examining architecture, component structure, and implementation patterns.
 - **Debugging** — Identification and classification of runtime errors, logic issues, database problems, and code quality concerns, with documented root causes and resolutions.
@@ -246,8 +246,8 @@ See [REPORT.md](REPORT.md) for a complete list of changes with code references.
 
 ## Author
 
-**Your Name** — your.email@example.com
+**Maram Alhaddad** — maramalhaddad123456@gmail.com
 
 ## License
 
-This project is available for academic use.
+This project is made by Eng.Maram Alhaddad
