@@ -8,9 +8,7 @@
 
 This report documents the technical audit, bug repair, and enhancement of a React Native mobile application called **Food Journal**. The application allows users to register accounts, authenticate, capture food photos using the device camera or gallery, attach descriptions and categories to those photos, and browse their personal food journal history. Data is stored locally using Expo SQLite, with no backend dependency.
 
-The project was delivered in two versions:
-
-- **FoodJournal-Old** — the original implementation, containing several unresolved bugs, deprecated API usage, and missing features.
+The project was delivered in ONE versions:
 - **FoodJournal-New** — a repaired and enhanced version that resolves all identified issues and introduces meaningful improvements to the application's reliability, usability, and code quality.
 
 This work was completed as part of the **Last Mobile App Development** course assignment, which requires students to demonstrate competence in React Native code review, Expo SQLite database analysis, bug identification and remediation, feature enhancement, technical documentation, and public repository preparation.
