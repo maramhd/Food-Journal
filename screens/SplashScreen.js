@@ -78,7 +78,7 @@ const SplashScreen = ({ navigation }) => {
       {/* IMAGE */}
 
       <Image
-        source={require("../assets/splash-icon.png")}
+        source={require("../assets/pic_splash.jpg")}
         style={styles.image}
         resizeMode="contain"
       />

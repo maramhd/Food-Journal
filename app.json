@@ -7,20 +7,22 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/main_Icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#f7f1e5"
     },
     "assetBundlePatterns": ["**/*"],
+    "icon": "./assets/main_Icon.png",
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "package": "com.foodjournal.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/main_Icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "icon": "./assets/main_Icon.png"
     },
     "web": {
       "favicon": "./assets/favicon.png"
