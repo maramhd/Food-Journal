@@ -564,37 +564,46 @@ The application now correctly supports all required features: user registration,
 
 ---
 
-### 11. Repository Deliverables
+### 11. EAS Build - Application Publishing
 
-The repository submitted for this assignment contains the following deliverables:
+The application has been published using **EAS Build** (Expo Application Services) for Android distribution.
 
-**Source Code**
+**EAS Build Configuration:**
 
-- Complete React Native (Expo) application source code in `FoodJournal-New/`
-- Expo SDK 55 implementation with updated dependencies
-- SQLite database layer with `expo-sqlite` v55 (synchronous open, `getAllAsync`/`runAsync` query pattern)
-- Authentication system with AsyncStorage session persistence
-- Camera integration using `CameraView` with hook-based permissions
-- Journal management with CRUD operations, category filtering, and swipe actions
+| Component | Details |
+|-----------|---------|
+| Build Service | EAS Build (Expo Cloud) |
+| Platform | Android |
+| Build Profile | preview (internal distribution) |
+| Package Name | com.foodjournal.app |
+| SDK Version | 55.0.0 |
+| EAS CLI Version | 18.10.0 |
+| Keystore | Remote (managed by Expo server) |
 
-**Configuration Files**
+**Configuration Files:**
 
-- `app.json` — Expo configuration with `expo-camera` and `expo-image-picker` plugin declarations
-- `babel.config.js` — Babel preset for Expo SDK 55
-- `package.json` — Dependency manifest with all required packages and versions
+- `eas.json` — Defines build profiles (development, preview, production)
+- `app.json` — Contains EAS project ID and Android package configuration
 
-**Assets**
+**Build Process:**
 
-- Splash screen image (`assets/pic_splash.jpg`)
-- App icon and adaptive icon
-- Web favicon
+1. Project source code was uploaded to EAS Build servers
+2. The build was executed on Expo's cloud infrastructure (Linux Medium resource class)
+3. Android APK was generated with proper signing and keystore
+4. The APK was made available for internal distribution download
 
-**Documentation**
+**Build Links:**
 
-- `README.md` — Project overview, installation instructions, database documentation, application workflow, and future improvements
-- `REPORT.md` — This technical audit, repair, and enhancement report
+- Build 1: https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/52f963f1-ede9-48c2-b5df-0160998fb1ad
+- Build 2: https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/24e8d7c3-6f6f-4a24-8f62-381f21868fed
+- Build 3: https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/25a405dc-1458-4c49-b148-581aad00aa3f
+- Build 4 (Final): https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/85d4cb9c-71cb-4d40-8517-c6e5d355c21a
 
-The repository is prepared for public GitHub submission according to assignment requirements. Both documentation files are self-contained and understandable by an independent reviewer without access to the source code.
+**Installation on Device:**
+
+The APK was downloaded and installed on a Xiaomi Redmi device for testing. The application runs as a standalone Android app without requiring Expo Go or a development server.
+
+**Repository:** https://github.com/maramhd/Food-Journal
 
 ---
 
