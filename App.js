@@ -16,6 +16,8 @@ import AuthScreen from "./components/auth/authScreen";
 
 import HomeScreen from "./screens/homeScreen";
 
+import ProfileScreen from "./screens/ProfileScreen";
+
 import { initDatabase } from "./components/database/database";
 
 // =========================
@@ -90,6 +92,7 @@ export default function App() {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -14,6 +14,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { executeSql } from "../database/database";
@@ -24,11 +25,19 @@ const AuthScreen = ({ navigation }) => {
   // =========================
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState(""); // New: username field
+  const [username, setUsername] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Reset Password states
+  const [resetModalVisible, setResetModalVisible] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   // =========================
   // Load saved user data
@@ -54,26 +63,22 @@ const AuthScreen = ({ navigation }) => {
   // Validation
   // =========================
   const validate = () => {
-    // Check empty fields
     if (!email.trim() || !password.trim()) {
       Alert.alert("Validation Error", "Please fill all fields");
       return false;
     }
 
-    // Check username when registering
     if (!isLogin && !username.trim()) {
       Alert.alert("Validation Error", "Please enter username");
       return false;
     }
 
-    // Check email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert("Validation Error", "Invalid email format");
       return false;
     }
 
-    // Check password length
     if (password.length < 6) {
       Alert.alert("Validation Error", "Password must be at least 6 characters");
       return false;
@@ -92,9 +97,7 @@ const AuthScreen = ({ navigation }) => {
       setLoading(true);
       const cleanEmail = email.trim().toLowerCase();
 
-      // =========================
       // LOGIN
-      // =========================
       if (isLogin) {
         const result = await executeSql(
           "SELECT * FROM users WHERE email = ? AND password = ?",
@@ -102,7 +105,6 @@ const AuthScreen = ({ navigation }) => {
         );
 
         if (result.length > 0) {
-          // Save user when "Remember Me" is enabled
           if (rememberMe) {
             await AsyncStorage.setItem("userId", result[0].id.toString());
           }
@@ -116,9 +118,7 @@ const AuthScreen = ({ navigation }) => {
         return;
       }
 
-      // =========================
       // REGISTER
-      // =========================
       const existingUser = await executeSql(
         "SELECT * FROM users WHERE email = ?",
         [cleanEmail],
@@ -129,7 +129,6 @@ const AuthScreen = ({ navigation }) => {
         return;
       }
 
-      // Insert new user with username
       const result = await executeSql(
         "INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
         [cleanEmail, password, username.trim()],
@@ -137,7 +136,6 @@ const AuthScreen = ({ navigation }) => {
 
       const userId = result.lastInsertRowId;
 
-      // Save session
       if (rememberMe) {
         await AsyncStorage.setItem("userId", userId.toString());
       }
@@ -155,6 +153,82 @@ const AuthScreen = ({ navigation }) => {
     }
   };
 
+  // =========================
+  // Reset Password
+  // =========================
+  const handleResetPassword = async () => {
+    if (!resetEmail.trim()) {
+      Alert.alert("Validation Error", "Please enter your email");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(resetEmail)) {
+      Alert.alert("Validation Error", "Invalid email format");
+      return;
+    }
+
+    if (!newPassword.trim()) {
+      Alert.alert("Validation Error", "Please enter a new password");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      Alert.alert("Validation Error", "Password must be at least 6 characters");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      Alert.alert("Validation Error", "Passwords do not match");
+      return;
+    }
+
+    try {
+      setResetLoading(true);
+      const cleanEmail = resetEmail.trim().toLowerCase();
+
+      const result = await executeSql(
+        "SELECT * FROM users WHERE email = ?",
+        [cleanEmail],
+      );
+
+      if (result.length === 0) {
+        Alert.alert("Error", "No account found with this email");
+        return;
+      }
+
+      await executeSql(
+        "UPDATE users SET password = ? WHERE email = ?",
+        [newPassword, cleanEmail],
+      );
+
+      Alert.alert("Success", "Password has been reset successfully", [
+        {
+          text: "OK",
+          onPress: () => {
+            setResetModalVisible(false);
+            setResetEmail("");
+            setNewPassword("");
+            setConfirmPassword("");
+            setEmail(cleanEmail);
+          },
+        },
+      ]);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Something went wrong");
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const openResetModal = () => {
+    setResetEmail(email.trim().toLowerCase());
+    setNewPassword("");
+    setConfirmPassword("");
+    setResetModalVisible(true);
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -165,7 +239,7 @@ const AuthScreen = ({ navigation }) => {
           <Text style={styles.logo}>🍔</Text>
           <Text style={styles.title}>Food Journal</Text>
 
-          {/* Username field (shown only in register mode) */}
+          {/* Username field (register only) */}
           {!isLogin && (
             <TextInput
               placeholder="Username"
@@ -205,6 +279,13 @@ const AuthScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
+          {/* Forgot Password (login only) */}
+          {isLogin && (
+            <TouchableOpacity onPress={openResetModal}>
+              <Text style={styles.forgotText}>Forgot Password?</Text>
+            </TouchableOpacity>
+          )}
+
           {/* Remember Me */}
           <TouchableOpacity
             style={styles.rememberBox}
@@ -233,12 +314,86 @@ const AuthScreen = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* ========================= */}
+      {/* RESET PASSWORD MODAL */}
+      {/* ========================= */}
+      <Modal visible={resetModalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Reset Password</Text>
+            <Text style={styles.modalSubtitle}>
+              Enter your email and new password
+            </Text>
+
+            {/* Reset Email */}
+            <TextInput
+              placeholder="Email"
+              placeholderTextColor="#777"
+              value={resetEmail}
+              onChangeText={setResetEmail}
+              style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            {/* New Password */}
+            <View style={styles.passwordBox}>
+              <TextInput
+                placeholder="New Password"
+                placeholderTextColor="#777"
+                value={newPassword}
+                onChangeText={setNewPassword}
+                style={styles.passwordInput}
+                secureTextEntry={!showNewPassword}
+              />
+              <TouchableOpacity
+                onPress={() => setShowNewPassword(!showNewPassword)}
+              >
+                <Text style={styles.showText}>
+                  {showNewPassword ? "Hide" : "Show"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Confirm Password */}
+            <TextInput
+              placeholder="Confirm New Password"
+              placeholderTextColor="#777"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              style={styles.input}
+              secureTextEntry
+            />
+
+            {/* Reset Button */}
+            {resetLoading ? (
+              <ActivityIndicator size="large" color="#c0392b" />
+            ) : (
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleResetPassword}
+              >
+                <Text style={styles.buttonText}>Reset Password</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Cancel */}
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setResetModalVisible(false)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
 
 // =========================
-// STYLES (unchanged)
+// STYLES
 // =========================
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#1b1b1b" },
@@ -268,10 +423,17 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 14,
     paddingHorizontal: 15,
-    marginBottom: 15,
+    marginBottom: 10,
   },
   passwordInput: { flex: 1, paddingVertical: 15 },
   showText: { color: "#c0392b", fontWeight: "bold" },
+  forgotText: {
+    textAlign: "right",
+    color: "#c0392b",
+    fontWeight: "600",
+    marginBottom: 15,
+    fontSize: 14,
+  },
   rememberBox: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   checkbox: {
     width: 22,
@@ -295,6 +457,41 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#c0392b",
     fontWeight: "bold",
+  },
+  // Reset Password Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    padding: 20,
+  },
+  modalCard: {
+    backgroundColor: "#fff7f1",
+    padding: 25,
+    borderRadius: 25,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 8,
+    color: "#7f1d1d",
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    textAlign: "center",
+    color: "#777",
+    marginBottom: 20,
+  },
+  cancelButton: {
+    marginTop: 15,
+    alignItems: "center",
+    padding: 12,
+  },
+  cancelText: {
+    color: "#777",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

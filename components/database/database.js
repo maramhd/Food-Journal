@@ -23,6 +23,13 @@ export const initDatabase = async () => {
       );
     `);
 
+    // Migration: add username column if missing (from old schema)
+    try {
+      await database.execAsync(`ALTER TABLE users ADD COLUMN username TEXT`);
+    } catch (e) {
+      // Column already exists — ignore
+    }
+
     // =========================
     // JOURNALS TABLE
     // =========================
@@ -43,7 +50,7 @@ export const initDatabase = async () => {
       );
     `);
 
-    console.log("تم تهيئة قاعدة البيانات بنجاح");
+    console.log("the database has been successfully initialized.");
   } catch (error) {
     console.log("Database Init Error:", error);
   }

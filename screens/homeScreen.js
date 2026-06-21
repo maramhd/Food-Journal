@@ -15,8 +15,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import * as ImagePicker from "expo-image-picker";
 
 import { CameraView, useCameraPermissions } from "expo-camera";
@@ -241,28 +239,6 @@ const HomeScreen = ({ route, navigation }) => {
   };
 
   // =========================
-  // LOGOUT
-  // =========================
-
-  const logout = async () => {
-    Alert.alert("Logout", "Do you want to logout?", [
-      {
-        text: "Cancel",
-      },
-
-      {
-        text: "Logout",
-
-        onPress: async () => {
-          await AsyncStorage.removeItem("userId");
-
-          navigation.replace("Auth");
-        },
-      },
-    ]);
-  };
-
-  // =========================
   // RESET FORM
   // =========================
 
@@ -315,8 +291,14 @@ const HomeScreen = ({ route, navigation }) => {
       <View style={styles.header}>
         <Text style={styles.title}>Food Journal</Text>
 
-        <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
-          <Text style={styles.logoutText}>Logout</Text>
+        <TouchableOpacity
+          style={styles.profileBtn}
+          onPress={() => navigation.navigate("Profile", { userId })}
+        >
+          <Image
+            source={require("../assets/profailicon.png")}
+            style={styles.profileImg}
+          />
         </TouchableOpacity>
       </View>
 
@@ -584,16 +566,22 @@ const styles = StyleSheet.create({
     color: "#7f1d1d",
   },
 
-  logoutBtn: {
-    backgroundColor: "#111",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 12,
+  headerBtns: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 
-  logoutText: {
-    color: "#fff",
-    fontWeight: "bold",
+  profileBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    overflow: "hidden",
+  },
+
+  profileImg: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
   },
 
   filterRow: {

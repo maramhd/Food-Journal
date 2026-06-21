@@ -1,6 +1,6 @@
 # Food Journal
 
-A React Native mobile application for tracking daily meals through photos, descriptions, and categories. Built with Expo SDK 55 and SQLite for local data persistence.
+A React Native mobile application for tracking daily meals through photos, descriptions, and categories. Built with Expo SDK 56 and SQLite for local data persistence.
 
 ## Overview
 
@@ -24,7 +24,14 @@ This repository was developed to satisfy the requirements of the **The last mobi
 - User registration with email, password, and username
 - Login with email and password
 - Session persistence via AsyncStorage ("Remember Me")
-- Logout with session clearing
+- Forgot Password — reset password from login screen
+
+**Profile Management**
+- View profile with avatar and post count
+- Edit username
+- Edit email with validation
+- Change password (verify current password first)
+- Logout from profile screen
 
 **Journal Management**
 - Capture photos with the in-app camera
@@ -153,17 +160,21 @@ FoodJournal-New/
 ├── package.json                       # Dependencies and scripts
 ├── assets/
 │   ├── pic_splash.jpg                 # Splash screen image
+│   ├── profailicon.png                # Profile avatar icon
+│   ├── editicon.png                   # Edit button icon
+│   ├── logouticon.png                 # Logout button icon
 │   ├── icon.png                       # App icon
 │   ├── adaptive-icon.png              # Android adaptive icon
 │   └── favicon.png                    # Web favicon
 ├── components/
 │   ├── auth/
-│   │   └── authScreen.js              # Login, registration, session management
+│   │   └── authScreen.js              # Login, registration, forgot password, session management
 │   └── database/
 │       └── database.js                # SQLite connection and query execution
 └── screens/
     ├── SplashScreen.js                # Animated splash with auto-navigation
-    └── homeScreen.js                  # Journal CRUD, camera, gallery, filtering
+    ├── homeScreen.js                  # Journal CRUD, camera, gallery, filtering
+    └── ProfileScreen.js              # Profile view, edit username/email, change password, logout
 ```
 
 ## Application Workflow
@@ -187,6 +198,24 @@ FoodJournal-New/
 
 1. On app start, the Auth screen checks AsyncStorage for a saved `userId`.
 2. If found, the user is automatically navigated to Home without re-entering credentials.
+
+### Forgot Password
+
+1. User taps "Forgot Password?" on the Login screen.
+2. A modal opens with the email field pre-filled (if previously entered).
+3. User enters a new password and confirms it.
+4. App validates email format, password length, and password match.
+5. Verifies the email exists in the database.
+6. Updates the password and shows a success alert.
+7. Modal closes and the email is filled in the login form.
+
+### Profile Management
+
+1. User taps the profile icon (top-right) on the Home screen.
+2. Profile screen displays avatar, post count, username, and email.
+3. User can tap "Edit" next to username or email to modify values.
+4. User can tap "🔑 Change Password" to open the password change modal.
+5. User can tap "🚪 Logout" to end the session and return to Auth.
 
 ### Create Journal Entry
 
@@ -228,7 +257,7 @@ The following improvements were introduced during the repair and enhancement pro
 - **Modern camera API:** Migrated from the deprecated `Camera` component to `CameraView` with hook-based permissions.
 - **Simplified database layer:** Synchronous database opening, separate read/write query paths, and plain array results replaced the old transaction-wrapped approach.
 - **UI redesign:** Warm food-inspired color theme, card-based journal layout, animated splash screen, horizontal filter pills, and modal-based journal entry form.
-- **New features:** Splash screen, logout, username registration, password visibility toggle, FAB button, and extended categories.
+- **New features:** Splash screen, forgot password, profile management, username/email editing, post count, logout, username registration, password visibility toggle, FAB button, and extended categories.
 
 See [REPORT.md](REPORT.md) for a complete list of changes with code references.
 
@@ -247,7 +276,5 @@ See [REPORT.md](REPORT.md) for a complete list of changes with code references.
 ## Author
 
 **Maram Alhaddad** — maramalhaddad123456@gmail.com
-
-## License
 
 This project is made by Eng.Maram Alhaddad

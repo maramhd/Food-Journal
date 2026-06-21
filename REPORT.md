@@ -30,12 +30,14 @@ The original FoodJournal-Old follows a straightforward React Native architecture
 ```
 index.js
   └─ App.js
+       ├─ SplashScreen (screens/SplashScreen.js)
        ├─ AuthScreen (components/auth/authScreen.js)
-       └─ HomeScreen (screens/homeScreen.js)
-            └─ database.js (components/database/database.js)
+       ├─ HomeScreen (screens/homeScreen.js)
+       │    └─ database.js (components/database/database.js)
+       └─ ProfileScreen (screens/ProfileScreen.js)
 ```
 
-`index.js` registers the root component with Expo. `App.js` initializes the SQLite database, manages a loading/error state, and defines a `Stack.Navigator` with two screens: `Auth` and `Home`. The navigation stack uses `@react-navigation/stack`, which is the JavaScript-based stack navigator.
+`index.js` registers the root component with Expo. `App.js` initializes the SQLite database, manages a loading/error state, and defines a `Stack.Navigator` with four screens: `Splash`, `Auth`, `Home`, and `Profile`. The navigation stack uses `@react-navigation/native-stack`, which is the platform-native stack navigator.
 
 #### 2.2 File Structure
 
@@ -65,7 +67,34 @@ The navigation system uses `createStackNavigator` from `@react-navigation/stack`
 
 This approach has a notable characteristic: because `navigate` pushes a new screen onto the stack rather than replacing the current one, the Android hardware back button will return the user to the `Auth` screen after login. This is a logic issue discussed in Section 4.
 
-#### 2.4 Expo SQLite Implementation
+#### 2.4 New Version File Structure
+
+```
+FoodJournal-New/
+├── App.js
+├── index.js
+├── app.json
+├── package.json
+├── assets/
+│   ├── pic_splash.jpg
+│   ├── profailicon.png
+│   ├── editicon.png
+│   ├── logouticon.png
+│   ├── icon.png
+│   ├── adaptive-icon.png
+│   └── favicon.png
+├── components/
+│   ├── auth/
+│   │   └── authScreen.js
+│   └── database/
+│       └── database.js
+└── screens/
+    ├── SplashScreen.js
+    ├── homeScreen.js
+    └── ProfileScreen.js
+```
+
+#### 2.5 Expo SQLite Implementation
 
 The database module at `components/database/database.js` manages the SQLite connection. It exports two functions: `initDatabase` and `executeSql`.
 
@@ -97,15 +126,15 @@ Journal entries are displayed using `SwipeListView` from `react-native-swipe-lis
 |-----------|---------|
 | Node.js | 18+ (Expo recommended) |
 | Expo CLI | Latest |
-| Expo SDK | 52 (Old) → 55 (New) |
+| Expo SDK | 52 (Old) → 56 (New) |
 | React | 18.3.1 (Old) → 19.2.0 (New) |
 | React Native | 0.76.9 (Old) → 0.83.6 (New) |
-| expo-sqlite | 15.1.4 (Old) → 55.0.16 (New) |
-| expo-camera | 16.0.18 (Old) → 55.0.18 (New) |
-| expo-image-picker | 16.0.6 (Old) → 55.0.20 (New) |
+| expo-sqlite | 15.1.4 (Old) → 56.0.0 (New) |
+| expo-camera | 16.0.18 (Old) → 56.0.0 (New) |
+| expo-image-picker | 16.0.6 (Old) → 56.0.0 (New) |
 | Navigation | @react-navigation/stack 7.2.10 (Old) → @react-navigation/native-stack 7.15.1 (New) |
 
-The upgrade from Expo SDK 52 to 55 brought significant API changes, particularly in `expo-camera` (the `Camera` component was replaced by `CameraView`), `expo-sqlite` (new `getAllAsync` and `runAsync` methods), and the navigation library (native stack replaced JavaScript stack).
+The upgrade from Expo SDK 52 to 56 brought significant API changes, particularly in `expo-camera` (the `Camera` component was replaced by `CameraView`), `expo-sqlite` (new `getAllAsync` and `runAsync` methods), and the navigation library (native stack replaced JavaScript stack).
 
 ---
 
@@ -126,7 +155,7 @@ The upgrade from Expo SDK 52 to 55 brought significant API changes, particularly
 - **Location:** `FoodJournal-Old/screens/homeScreen.js` line 65
 - **Description:** The code reads `result.rows._array || []` to extract journal entries. The `_array` property is an internal field on expo-sqlite's result set object, not part of the documented public API.
 - **Root Cause:** The developer likely discovered through experimentation that `_array` contained the raw row data and used it directly. This works with the current version of expo-sqlite but is not guaranteed to persist across updates.
-- **Impact:** If expo-sqlite changes its internal result set structure (which is likely given the major version jump from 15 to 55), this line will return `undefined`, and the fallback `|| []` will produce an empty journal list with no error message — a silent failure.
+- **Impact:** If expo-sqlite changes its internal result set structure (which is likely given the major version jump from 15 to 56), this line will return `undefined`, and the fallback `|| []` will produce an empty journal list with no error message — a silent failure.
 - **Resolution:** In the new version, `executeSql` uses `database.getAllAsync()` for SELECT queries (`FoodJournal-New/components/database/database.js` line 60), which returns a plain JavaScript array. The consumer code at `FoodJournal-New/screens/homeScreen.js` line 94 simply assigns `result` directly to `setJournals(result)`, with no internal property access.
 
 #### 4.2 Logic Issues
@@ -206,7 +235,7 @@ The upgrade from Expo SDK 52 to 55 brought significant API changes, particularly
 - **Location:** `FoodJournal-Old/screens/homeScreen.js` line 15
 - **Description:** The file imports `Camera` from `expo-camera` using the legacy API: `import { Camera } from 'expo-camera'`. In Expo SDK 51+, this component was deprecated in favor of `CameraView`.
 - **Root Cause:** The project was built against an older SDK and not updated.
-- **Impact:** Deprecated APIs generate console warnings and are removed in subsequent SDK versions. The project upgrade to SDK 55 made this a breaking change.
+- **Impact:** Deprecated APIs generate console warnings and are removed in subsequent SDK versions. The project upgrade to SDK 56 made this a breaking change.
 - **Resolution:** The new version imports `{ CameraView, useCameraPermissions }` from `expo-camera` (`FoodJournal-New/screens/homeScreen.js` line 22) and uses the hook-based permission API.
 
 **CQ-002: No Session Persistence**
@@ -223,7 +252,7 @@ The upgrade from Expo SDK 52 to 55 brought significant API changes, particularly
 - **Description:** There is no logout button, menu, or mechanism anywhere in the Home screen.
 - **Root Cause:** Missing feature.
 - **Impact:** On shared devices, an authenticated user cannot log out. The only way to "log out" is to force-close the app (and since there is no session persistence, this is the only way to reach the login screen again). This is inconsistent with standard mobile app behavior.
-- **Resolution:** In the new version (`FoodJournal-New/screens/homeScreen.js` lines 239–255), a `logout` function clears the AsyncStorage session and calls `navigation.replace("Auth")`. A styled logout button is placed in the header (lines 310–312).
+- **Resolution:** In the new version (`FoodJournal-New/screens/ProfileScreen.js` lines 145–155), a `logout` function clears the AsyncStorage session and calls `navigation.replace("Auth")`. A styled logout button is placed in the Profile screen (lines 354–361).
 
 **CQ-004: `isInitialized` State Flag**
 
@@ -360,7 +389,7 @@ Each feature was verified by tracing the code path from UI event handler through
 
 - **Old:** Not available.
 - **New:** Header button triggers confirmation dialog, clears AsyncStorage, navigates to Auth.
-- **Verification:** `FoodJournal-New/screens/homeScreen.js` lines 239–255. The `logout` function removes the `userId` key from AsyncStorage and calls `navigation.replace("Auth")`.
+- **Verification:** `FoodJournal-New/screens/ProfileScreen.js` lines 145–155. The `logout` function removes the `userId` key from AsyncStorage and calls `navigation.replace("Auth")`.
 
 #### Taking Photos
 
@@ -415,11 +444,15 @@ The new version introduces a branded splash screen with a rotating animated spin
 
 **Redesigned Authentication Screen** (`FoodJournal-New/components/auth/authScreen.js`)
 
-The auth screen received a complete visual redesign: a dark background (`#1b1b1b`), a card-style form container (`#fff7f1`), a food emoji logo, red accent buttons (`#c0392b`), rounded input fields, and a "Remember Me" checkbox. The password field includes a Show/Hide toggle. A `ScrollView` wraps the form content, ensuring accessibility on smaller devices.
+The auth screen received a complete visual redesign: a dark background (`#1b1b1b`), a card-style form container (`#fff7f1`), a food emoji logo, red accent buttons (`#c0392b`), rounded input fields, and a "Remember Me" checkbox. The password field includes a Show/Hide toggle. A "Forgot Password?" link opens a modal for password reset. A `ScrollView` wraps the form content, ensuring accessibility on smaller devices.
 
 **Redesigned Home Screen** (`FoodJournal-New/screens/homeScreen.js`)
 
-The journal list changed from small thumbnail rows to large image cards (240px height, 22px border radius). Category filters changed from a `Picker` dropdown to horizontal scrollable pills. A floating action button (FAB) opens the journal entry form in a modal. The color scheme uses warm food-inspired tones (`#fdf8f4` background, `#7f1d1d` headers, `#c0392b` accents).
+The journal list changed from small thumbnail rows to large image cards (240px height, 22px border radius). Category filters changed from a `Picker` dropdown to horizontal scrollable pills. A floating action button (FAB) opens the journal entry form in a modal. The header includes a profile icon that navigates to the Profile screen. The color scheme uses warm food-inspired tones (`#fdf8f4` background, `#7f1d1d` headers, `#c0392b` accents).
+
+**Profile Screen** (`FoodJournal-New/screens/ProfileScreen.js`)
+
+A new profile management screen allows users to view their avatar, post count, username, and email. Users can edit their username and email inline, change their password via a secure modal, and logout. The profile icon in the home screen header provides quick access to this screen.
 
 #### 7.2 Performance Improvements
 
@@ -456,6 +489,7 @@ Using `navigation.replace` instead of `navigation.navigate` for login/logout cre
 - Removed unenforced `FOREIGN KEY` declaration.
 - Removed unnecessary `PRAGMA journal_mode = WAL` (SQLite default in modern versions).
 - Plain array results from `getAllAsync` eliminate fragile internal property access.
+- Database migration: `ALTER TABLE users ADD COLUMN username TEXT` for existing databases (wrapped in try/catch for new installations).
 
 #### 7.5 New Features
 
@@ -465,7 +499,12 @@ Using `navigation.replace` instead of `navigation.navigate` for login/logout cre
 | Session persistence | AsyncStorage-based auto-login |
 | Username field | User identity during registration |
 | Password toggle | Show/hide password visibility |
-| Logout | Secure session termination |
+| Forgot Password | Reset password from login screen via modal |
+| Profile screen | View/edit profile, post count, change password, logout |
+| Edit username | Update username from profile screen |
+| Edit email | Update email from profile with validation |
+| Post count | Display total journal entries on profile |
+| Logout | Secure session termination (from profile screen) |
 | FAB + modal entry form | Modern journal creation flow |
 | Horizontal filter pills | Touch-friendly category filtering |
 | Drink category | Extended food categories |
@@ -483,12 +522,14 @@ Testing was performed within the Expo development environment using Expo Go on a
 
 The following testing procedures were applied:
 
-- **Navigation flow testing:** Each screen transition was verified — app startup to splash, splash to authentication, authentication to home, and home back to authentication via logout. Both `navigation.navigate` and `navigation.replace` behaviors were validated, including Android hardware back button responses.
-- **SQLite CRUD operations:** Database operations were tested by creating, reading, updating, and deleting journal entries, then verifying that the list reflected the changes immediately. Query result formats (plain arrays from `getAllAsync`, change objects from `runAsync`) were confirmed against the expo-sqlite v55 documentation.
+- **Navigation flow testing:** Each screen transition was verified — app startup to splash, splash to authentication, authentication to home, home to profile, and profile back to authentication via logout. Both `navigation.navigate` and `navigation.replace` behaviors were validated, including Android hardware back button responses.
+- **SQLite CRUD operations:** Database operations were tested by creating, reading, updating, and deleting journal entries, then verifying that the list reflected the changes immediately. Query result formats (plain arrays from `getAllAsync`, change objects from `runAsync`) were confirmed against the expo-sqlite v56 documentation.
 - **Authentication scenarios:** Registration with valid inputs, duplicate email detection, login with correct and incorrect credentials, and session persistence across app restarts were tested. The AsyncStorage save/load cycle for auto-login was verified by force-closing and reopening the application.
 - **Input validation:** Empty field detection, email format validation, password length requirements, and missing image/description checks were tested by submitting forms with intentionally invalid data.
 - **Camera and gallery:** Photo capture via `CameraView` and image selection via `ImagePicker` were tested on both Android and iOS simulation environments. Permission request flows were verified by revoking and granting camera permissions.
 - **UI interactions:** Swipe-to-edit and swipe-to-delete gestures were tested on list items. The FAB button, modal open/close, category filter pills, and horizontal scrolling were validated for correct behavior.
+- **Profile management:** Profile navigation, username editing, email editing, post count display, password change, and logout from profile were tested. Input validation for email format and current password verification were confirmed.
+- **Password reset:** The forgot password flow was tested from the login screen, including email pre-filling, new password validation, and password update in the database.
 
 All test results are documented in the summary table below.
 
@@ -498,6 +539,7 @@ All test results are documented in the summary table below.
 | Registration with valid inputs | Account created, navigates to Home | Account saved to SQLite with username, userId passed to Home | Pass |
 | Registration with existing email | "Email already exists" alert shown | Alert displayed, no duplicate created | Pass |
 | Registration without username | "Please enter username" validation | Alert displayed, form not submitted | Pass |
+| Navigate to Profile | Profile screen opens with user data | navigation.navigate("Profile", { userId }) | Pass |
 | Login with valid credentials | Navigates to Home with userId | Query returns user, AsyncStorage saves session | Pass |
 | Login with invalid credentials | "Invalid email or password" alert | Alert displayed, no navigation occurs | Pass |
 | Auto-login on restart | Navigates directly to Home | AsyncStorage checked, userId found, replace to Home | Pass |
@@ -516,12 +558,19 @@ All test results are documented in the summary table below.
 | Empty state | "No journals yet" message displayed | EmptyState component rendered | Pass |
 | Camera permission denied | "Camera permission required" with grant button | Permission hook returns denied, UI shown | Pass |
 | SQLite data persistence | Data survives app restart | SQLite database persists on device filesystem | Pass |
+| Forgot Password | Reset password from login screen | Modal opens, email pre-filled, password updated in DB | Pass |
+| Profile screen | Navigate to profile from home | Profile button in header navigates to ProfileScreen | Pass |
+| View post count | Display total journal entries | SELECT COUNT query returns correct number | Pass |
+| Edit username | Update username from profile | Input field appears, UPDATE query executed | Pass |
+| Edit email | Update email from profile | Input field appears, email validated, UPDATE executed | Pass |
+| Change password from profile | Update password with current password verification | Current password checked, new password saved | Pass |
+| Logout from profile | Return to Auth screen, session cleared | AsyncStorage cleared, navigation.replace to Auth | Pass |
 
 ---
 
 ### 9. Challenges Encountered
 
-**Expo SDK Migration (52 → 55)**
+**Expo SDK Migration (52 → 56)**
 
 The three-version jump in Expo SDK introduced breaking API changes. The most significant was `expo-camera`, where the entire `Camera` component was replaced by `CameraView` with a hook-based permission model. This required rewriting the camera integration from scratch rather than simply updating imports. Similarly, `expo-sqlite` changed its result format from transaction-wrapped objects to direct array/method returns, requiring updates to every query consumer.
 
@@ -530,7 +579,7 @@ The three-version jump in Expo SDK introduced breaking API changes. The most sig
 The original codebase used `@react-navigation/stack` (JavaScript stack navigator) and the legacy `Camera` component. Both are deprecated or replaced in newer SDK versions. The migration to `@react-navigation/native-stack` and `CameraView` required understanding the new APIs' behavior, permission models, and configuration requirements.
 **Internal API Reliance**
 
-The old code's use of `result.rows._array` to access query results relied on an undocumented internal property. This worked with expo-sqlite v15 but was not guaranteed to work with v55. Verifying that the new `getAllAsync` method returns a plain array required reading the expo-sqlite v55 documentation and testing the return format.
+The old code's use of `result.rows._array` to access query results relied on an undocumented internal property. This worked with expo-sqlite v15 but was not guaranteed to work with v56. Verifying that the new `getAllAsync` method returns a plain array required reading the expo-sqlite v56 documentation and testing the return format.
 
 ---
 
@@ -538,7 +587,7 @@ The old code's use of `result.rows._array` to access query results relied on an 
 
 This audit identified and resolved **4 runtime errors, 3 logic issues, 4 database issues, 1 navigation issue, and 4 code quality concerns** in the original FoodJournal-Old codebase. Each finding was verified against the actual source code, classified by severity, and resolved with a documented solution in FoodJournal-New.
 
-Beyond bug repair, the new version introduces meaningful enhancements: a branded splash screen, session persistence, a modern camera API, separated filter/save state, a redesigned UI with consistent theming, and a simplified database layer. These changes transform the application from a functional prototype into a polished, maintainable product.
+Beyond bug repair, the new version introduces meaningful enhancements: a branded splash screen, session persistence, a modern camera API, separated filter/save state, a redesigned UI with consistent theming, a simplified database layer, a profile management screen, and password reset functionality. These changes transform the application from a functional prototype into a polished, maintainable product.
 
 The most impactful changes were:
 
@@ -547,7 +596,7 @@ The most impactful changes were:
 3. **Splitting the shared `category` state** — which resolved a confusing UX bug where filtering and saving interfered with each other.
 4. **Simplifying the database layer** — which removed race conditions, eliminated fragile internal API access, and improved query performance.
 
-The application now correctly supports all required features: user registration, login, logout, photo capture, gallery selection, journal CRUD operations, category filtering, and local SQLite persistence. The codebase is ready for further development, backend integration, and potential deployment.
+The application now correctly supports all required features: user registration, login, logout, photo capture, gallery selection, journal CRUD operations, category filtering, local SQLite persistence, profile management, username/email editing, post count display, and password reset. The codebase is ready for further development, backend integration, and potential deployment.
 
 ---
 
@@ -563,7 +612,7 @@ The application has been published using **EAS Build** (Expo Application Service
 | Platform | Android |
 | Build Profile | preview (internal distribution) |
 | Package Name | com.foodjournal.app |
-| SDK Version | 55.0.0 |
+| SDK Version | 56.0.0 |
 | EAS CLI Version | 18.10.0 |
 | Keystore | Remote (managed by Expo server) |
 
