@@ -633,7 +633,8 @@ The application has been published using **EAS Build** (Expo Application Service
 - Build 1: https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/52f963f1-ede9-48c2-b5df-0160998fb1ad
 - Build 2: https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/24e8d7c3-6f6f-4a24-8f62-381f21868fed
 - Build 3: https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/25a405dc-1458-4c49-b148-581aad00aa3f
-- Build 4 (Final): https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/85d4cb9c-71cb-4d40-8517-c6e5d355c21a
+- Build 4: https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/85d4cb9c-71cb-4d40-8517-c6e5d355c21a
+- Build 5 (Final)https://expo.dev/accounts/maramhaddad/projects/foodJournalTracker/builds/03bd0ef4-fcd0-488d-befa-e4d74c9da64a
 
 **Installation on Device:**
 
